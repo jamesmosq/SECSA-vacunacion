@@ -11,7 +11,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Aplica headers de seguridad a todas las respuestas web
+        $middleware->web(append: [
+            \App\Http\Middleware\SecurityHeaders::class,
+        ]);
+        // Alias de middleware
+        $middleware->alias([
+            'esAdmin' => \App\Http\Middleware\EsAdministrador::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
