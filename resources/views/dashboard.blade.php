@@ -323,40 +323,6 @@
 
 </div>
 
-{{-- ════════════════════════════════════════════════════════ --}}
-{{-- FILA 6 – Accesos rápidos                               --}}
-{{-- ════════════════════════════════════════════════════════ --}}
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-th mr-2"></i>Accesos rápidos</h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    @php $currentSection = null; @endphp
-                    @foreach($opciones as $op)
-                        @if(empty($op->pagina))
-                            @if($currentSection !== null)</div>@endif
-                            <div class="col-12 mt-2 mb-1">
-                                <small class="text-muted font-weight-bold text-uppercase">{{ $op->opcion }}</small>
-                            </div>
-                            <div class="row w-100 mx-0">
-                            @php $currentSection = $op->opcion; @endphp
-                        @else
-                            <div class="col-md-2 col-sm-4 mb-2">
-                                <a href="{{ url($op->pagina) }}" class="btn btn-outline-primary btn-sm w-100 text-left">
-                                    <i class="fas fa-chevron-right mr-1"></i>{{ $op->opcion }}
-                                </a>
-                            </div>
-                        @endif
-                    @endforeach
-                    @if($currentSection !== null)</div>@endif
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 @endsection
 

@@ -137,9 +137,6 @@ class DashboardController extends Controller
             ->limit(8)
             ->get();
 
-        // ── Opciones del menú (para sidebar y sección de accesos) ────────
-        $opciones = auth()->user()->opciones()->orderBy('orden')->get();
-
         return view('dashboard', compact(
             'saldoTotalPai', 'lotesActivosPai', 'lotesVencidosPai', 'lotesPorVencer',
             'ingresosMes', 'salidasMes', 'totalMovMes',
@@ -149,8 +146,7 @@ class DashboardController extends Controller
             'meses', 'chartIngresos', 'chartSalidas',
             'topInsumos',
             'labelsUlt6', 'dataPaiUlt6', 'dataCovidUlt6',
-            'lotesProxVencer', 'topInstituciones',
-            'opciones'
+            'lotesProxVencer', 'topInstituciones'
         ));
     }
 }

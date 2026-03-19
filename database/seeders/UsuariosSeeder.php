@@ -12,9 +12,9 @@ class UsuariosSeeder extends Seeder
     public function run(): void
     {
         $usuarios = [
-            ['login' => 'Administrador', 'password' => Hash::make('Admin123*'), 'tipo' => 'Administrador'],
-            ['login' => 'Consulta',      'password' => Hash::make('Consulta'),   'tipo' => 'Consulta'],
-            ['login' => 'General',       'password' => Hash::make('vacunacion123*'), 'tipo' => 'General'],
+            ['login' => 'Administrador', 'password' => Hash::make('Admin123*'),       'tipo' => 'Administrador'],
+            ['login' => 'Consulta',      'password' => Hash::make('Consulta'),         'tipo' => 'Consulta'],
+            ['login' => 'General',       'password' => Hash::make('vacunacion123*'),   'tipo' => 'General'],
         ];
 
         foreach ($usuarios as $u) {
@@ -22,51 +22,63 @@ class UsuariosSeeder extends Seeder
         }
 
         $opciones = [
-            // Administrador
-            ['login' => 'Administrador', 'opcion' => '-----------TABLAS MAESTRAS ----------------',         'pagina' => '',                                        'orden' => 100],
-            ['login' => 'Administrador', 'opcion' => 'LOTE',                                                'pagina' => 'lotes',                                   'orden' => 1],
-            ['login' => 'Administrador', 'opcion' => 'MOVIMIENTO',                                          'pagina' => 'movimientos',                             'orden' => 2],
-            ['login' => 'Administrador', 'opcion' => 'INFORME POR INSTITUCION Y FECHA ENTREGA',             'pagina' => 'reportes/institucion-fecha',               'orden' => 3],
-            ['login' => 'Administrador', 'opcion' => 'INFORME POR INSTITUCION Y PEDIDO',                    'pagina' => 'reportes/institucion-pedido',              'orden' => 4],
-            ['login' => 'Administrador', 'opcion' => 'INFORME POR INSTITUCION POR PERIODO',                 'pagina' => 'reportes/institucion-periodo',             'orden' => 5],
-            ['login' => 'Administrador', 'opcion' => 'INFORME POR PERIODO',                                 'pagina' => 'reportes/periodo',                        'orden' => 6],
-            ['login' => 'Administrador', 'opcion' => 'INFORME POR INSUMO Y PERIODO',                        'pagina' => 'reportes/insumo-periodo',                 'orden' => 7],
-            ['login' => 'Administrador', 'opcion' => 'INGRESA RADICADO PAIWEB',                             'pagina' => 'pedidos',                                 'orden' => 8],
-            ['login' => 'Administrador', 'opcion' => 'SALDO DE INVENTARIO',                                 'pagina' => 'reportes/saldo-inventario',               'orden' => 9],
-            ['login' => 'Administrador', 'opcion' => 'INSTITUCION',                                         'pagina' => 'instituciones',                           'orden' => 101],
-            ['login' => 'Administrador', 'opcion' => 'INSUMO',                                              'pagina' => 'insumos',                                 'orden' => 102],
-            ['login' => 'Administrador', 'opcion' => 'LABORATORIO',                                         'pagina' => 'laboratorios',                            'orden' => 103],
-            ['login' => 'Administrador', 'opcion' => 'PRESENTACION',                                        'pagina' => 'presentaciones',                          'orden' => 104],
-            ['login' => 'Administrador', 'opcion' => '-----------SEGUIMIENTO A LA COHORTE ----------------','pagina' => '',                                        'orden' => 200],
-            ['login' => 'Administrador', 'opcion' => 'Informe Cohortes',                                    'pagina' => 'cohorte',                                 'orden' => 201],
-            ['login' => 'Administrador', 'opcion' => '---------- INDICADORES ----------------',             'pagina' => '',                                        'orden' => 250],
-            ['login' => 'Administrador', 'opcion' => 'ESTADISTICA DE INDICADORES',                          'pagina' => 'estadistica',                             'orden' => 251],
-            ['login' => 'Administrador', 'opcion' => '-----------CARNET FIEBRE AMARILLA Y SR ----------------','pagina' => '',                                     'orden' => 300],
-            ['login' => 'Administrador', 'opcion' => 'Carnet FA y SR',                                      'pagina' => 'carnets/crear',                           'orden' => 301],
-            ['login' => 'Administrador', 'opcion' => '-----------COVID ----------------',                    'pagina' => '',                                        'orden' => 500],
-            ['login' => 'Administrador', 'opcion' => 'LOTE COVID',                                          'pagina' => 'lotes-covid',                             'orden' => 501],
-            ['login' => 'Administrador', 'opcion' => 'INSTITUCION COVID',                                   'pagina' => 'instituciones-covid',                     'orden' => 502],
-            ['login' => 'Administrador', 'opcion' => 'INSUMO COVID',                                        'pagina' => 'insumos-covid',                           'orden' => 503],
-            ['login' => 'Administrador', 'opcion' => 'LABORATORIO COVID',                                   'pagina' => 'laboratorios-covid',                      'orden' => 504],
-            ['login' => 'Administrador', 'opcion' => 'PRESENTACION COVID',                                  'pagina' => 'presentaciones-covid',                    'orden' => 505],
-            ['login' => 'Administrador', 'opcion' => 'MOVIMIENTO COVID',                                    'pagina' => 'movimientos-covid',                       'orden' => 506],
-            ['login' => 'Administrador', 'opcion' => 'INFORME POR INSTITUCION Y FECHA ENTREGA COVID',       'pagina' => 'reportes/covid/institucion-fecha',        'orden' => 507],
-            ['login' => 'Administrador', 'opcion' => 'INFORME POR INSTITUCION Y PEDIDO COVID',              'pagina' => 'reportes/covid/institucion-pedido',       'orden' => 508],
-            ['login' => 'Administrador', 'opcion' => 'INFORME POR INSTITUCION POR PERIODO COVID',           'pagina' => 'reportes/covid/institucion-periodo',      'orden' => 509],
-            ['login' => 'Administrador', 'opcion' => 'INFORME POR PERIODO COVID',                           'pagina' => 'reportes/covid/periodo',                  'orden' => 510],
-            ['login' => 'Administrador', 'opcion' => 'INFORME POR INSUMO Y PERIODO COVID',                  'pagina' => 'reportes/covid/insumo-periodo',           'orden' => 511],
-            ['login' => 'Administrador', 'opcion' => 'INGRESA RADICADO PAIWEB COVID',                       'pagina' => 'pedidos-covid',                           'orden' => 512],
-            ['login' => 'Administrador', 'opcion' => 'SALDO DE INVENTARIO COVID',                           'pagina' => 'reportes/covid/saldo-inventario',         'orden' => 513],
-            // Consulta
-            ['login' => 'Consulta', 'opcion' => '---------- INDICADORES ----------------', 'pagina' => '',              'orden' => 250],
-            ['login' => 'Consulta', 'opcion' => 'ESTADISTICA DE INDICADORES',              'pagina' => 'estadistica',   'orden' => 251],
-            // General
-            ['login' => 'General', 'opcion' => '-----------SEGUIMIENTO A LA COHORTE ----------------', 'pagina' => '',            'orden' => 200],
-            ['login' => 'General', 'opcion' => 'Informe Cohortes',                                     'pagina' => 'cohorte',     'orden' => 201],
-            ['login' => 'General', 'opcion' => '---------- INDICADORES ----------------',              'pagina' => '',            'orden' => 250],
-            ['login' => 'General', 'opcion' => 'ESTADISTICA DE INDICADORES',                           'pagina' => 'estadistica', 'orden' => 251],
-            ['login' => 'General', 'opcion' => '-----------CARNET FIEBRE AMARILLA Y SR ----------------','pagina' => '',          'orden' => 300],
-            ['login' => 'General', 'opcion' => 'Carnet FA y SR',                                       'pagina' => 'carnets/crear','orden' => 301],
+            // ── Administrador ────────────────────────────────────────────────────
+            // PAI — Inventario
+            ['login' => 'Administrador', 'opcion' => 'PAI — Inventario',            'pagina' => '',                              'orden' => 100],
+            ['login' => 'Administrador', 'opcion' => 'Lotes',                        'pagina' => 'lotes',                         'orden' => 101],
+            ['login' => 'Administrador', 'opcion' => 'Movimientos',                  'pagina' => 'movimientos',                   'orden' => 102],
+            ['login' => 'Administrador', 'opcion' => 'Pedidos PAIWEB',               'pagina' => 'pedidos',                       'orden' => 103],
+            ['login' => 'Administrador', 'opcion' => 'Saldo de Inventario',          'pagina' => 'reportes/saldo-inventario',     'orden' => 104],
+            // PAI — Catálogos
+            ['login' => 'Administrador', 'opcion' => 'PAI — Catálogos',             'pagina' => '',                              'orden' => 200],
+            ['login' => 'Administrador', 'opcion' => 'Instituciones',                'pagina' => 'instituciones',                 'orden' => 201],
+            ['login' => 'Administrador', 'opcion' => 'Insumos',                      'pagina' => 'insumos',                       'orden' => 202],
+            ['login' => 'Administrador', 'opcion' => 'Laboratorios',                 'pagina' => 'laboratorios',                  'orden' => 203],
+            ['login' => 'Administrador', 'opcion' => 'Presentaciones',               'pagina' => 'presentaciones',                'orden' => 204],
+            // PAI — Reportes
+            ['login' => 'Administrador', 'opcion' => 'PAI — Reportes',              'pagina' => '',                              'orden' => 300],
+            ['login' => 'Administrador', 'opcion' => 'Por Institución y Fecha',      'pagina' => 'reportes/institucion-fecha',    'orden' => 301],
+            ['login' => 'Administrador', 'opcion' => 'Por Institución y Pedido',     'pagina' => 'reportes/institucion-pedido',   'orden' => 302],
+            ['login' => 'Administrador', 'opcion' => 'Por Institución por Periodo',  'pagina' => 'reportes/institucion-periodo',  'orden' => 303],
+            ['login' => 'Administrador', 'opcion' => 'Por Periodo',                  'pagina' => 'reportes/periodo',              'orden' => 304],
+            ['login' => 'Administrador', 'opcion' => 'Por Insumo y Periodo',         'pagina' => 'reportes/insumo-periodo',       'orden' => 305],
+            // Cohorte e Indicadores
+            ['login' => 'Administrador', 'opcion' => 'Cohorte e Indicadores',       'pagina' => '',                              'orden' => 400],
+            ['login' => 'Administrador', 'opcion' => 'Informe Cohortes',             'pagina' => 'cohorte',                       'orden' => 401],
+            ['login' => 'Administrador', 'opcion' => 'Estadística de Indicadores',  'pagina' => 'estadistica',                   'orden' => 402],
+            // Carnets
+            ['login' => 'Administrador', 'opcion' => 'Carnets',                     'pagina' => '',                              'orden' => 500],
+            ['login' => 'Administrador', 'opcion' => 'Carnet FA y SR',               'pagina' => 'carnets/crear',                 'orden' => 501],
+            // COVID — Inventario
+            ['login' => 'Administrador', 'opcion' => 'COVID — Inventario',          'pagina' => '',                              'orden' => 600],
+            ['login' => 'Administrador', 'opcion' => 'Lotes COVID',                  'pagina' => 'lotes-covid',                   'orden' => 601],
+            ['login' => 'Administrador', 'opcion' => 'Movimientos COVID',            'pagina' => 'movimientos-covid',             'orden' => 602],
+            ['login' => 'Administrador', 'opcion' => 'Pedidos COVID',                'pagina' => 'pedidos-covid',                 'orden' => 603],
+            ['login' => 'Administrador', 'opcion' => 'Saldo Inventario COVID',       'pagina' => 'reportes/covid/saldo-inventario','orden' => 604],
+            // COVID — Catálogos
+            ['login' => 'Administrador', 'opcion' => 'COVID — Catálogos',           'pagina' => '',                              'orden' => 700],
+            ['login' => 'Administrador', 'opcion' => 'Instituciones COVID',          'pagina' => 'instituciones-covid',           'orden' => 701],
+            ['login' => 'Administrador', 'opcion' => 'Insumos COVID',                'pagina' => 'insumos-covid',                 'orden' => 702],
+            ['login' => 'Administrador', 'opcion' => 'Laboratorios COVID',           'pagina' => 'laboratorios-covid',            'orden' => 703],
+            ['login' => 'Administrador', 'opcion' => 'Presentaciones COVID',         'pagina' => 'presentaciones-covid',          'orden' => 704],
+            // COVID — Reportes
+            ['login' => 'Administrador', 'opcion' => 'COVID — Reportes',            'pagina' => '',                              'orden' => 800],
+            ['login' => 'Administrador', 'opcion' => 'Por Institución y Fecha',      'pagina' => 'reportes/covid/institucion-fecha',   'orden' => 801],
+            ['login' => 'Administrador', 'opcion' => 'Por Institución y Pedido',     'pagina' => 'reportes/covid/institucion-pedido',  'orden' => 802],
+            ['login' => 'Administrador', 'opcion' => 'Por Institución por Periodo',  'pagina' => 'reportes/covid/institucion-periodo', 'orden' => 803],
+            ['login' => 'Administrador', 'opcion' => 'Por Periodo',                  'pagina' => 'reportes/covid/periodo',             'orden' => 804],
+            ['login' => 'Administrador', 'opcion' => 'Por Insumo y Periodo',         'pagina' => 'reportes/covid/insumo-periodo',      'orden' => 805],
+
+            // ── Consulta ─────────────────────────────────────────────────────────
+            ['login' => 'Consulta', 'opcion' => 'Cohorte e Indicadores',    'pagina' => '',            'orden' => 400],
+            ['login' => 'Consulta', 'opcion' => 'Estadística de Indicadores','pagina' => 'estadistica', 'orden' => 402],
+
+            // ── General ──────────────────────────────────────────────────────────
+            ['login' => 'General', 'opcion' => 'Cohorte e Indicadores',     'pagina' => '',              'orden' => 400],
+            ['login' => 'General', 'opcion' => 'Informe Cohortes',           'pagina' => 'cohorte',       'orden' => 401],
+            ['login' => 'General', 'opcion' => 'Estadística de Indicadores', 'pagina' => 'estadistica',   'orden' => 402],
+            ['login' => 'General', 'opcion' => 'Carnets',                    'pagina' => '',              'orden' => 500],
+            ['login' => 'General', 'opcion' => 'Carnet FA y SR',             'pagina' => 'carnets/crear', 'orden' => 501],
         ];
 
         UsuarioOpcion::truncate();
