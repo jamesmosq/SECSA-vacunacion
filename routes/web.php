@@ -36,6 +36,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/principal', [DashboardController::class, 'index'])->name('principal');
 
     // Tablas maestras PAI
+    Route::get('/lotes/plantilla', [LoteController::class, 'plantilla'])->name('lotes.plantilla');
+    Route::post('/lotes/importar', [LoteController::class, 'importar'])->name('lotes.importar');
     Route::resource('lotes', LoteController::class);
     Route::resource('movimientos', MovimientoController::class);
     Route::post('/movimientos/por-institucion', [MovimientoController::class, 'byInstitucion'])->name('movimientos.por-institucion');

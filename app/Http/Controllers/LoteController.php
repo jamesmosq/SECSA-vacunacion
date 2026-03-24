@@ -80,4 +80,116 @@ class LoteController extends Controller
         Lote::findOrFail($loteCode)->delete();
         return redirect()->route('lotes.index')->with('success', 'Lote eliminado.');
     }
+
+    public function plantilla()
+    {
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="plantilla_lotes.csv"',
+        ];
+
+        $columnas = ['lote', 'insumo', 'presentacion', 'fecha_vencimiento', 'laboratorio', 'saldo', 'estado', 'observacion'];
+        $ejemplo  = ['LOTE001', 'BCG', 'Vial x 10 dosis', '2026-12-31', 'Laboratorio XYZ', '1000', 'Activo', 'Observación opcional'];
+
+        $callback = function () use ($columnas, $ejemplo) {
+            $out = fopen('php://output', 'w');
+            fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM UTF-8 para Excel
+            fputcsv($out, $columnas, ';');
+            fputcsv($out, $ejemplo, ';');
+            fclose($out);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function importar(Request $request)
+    {
+        $request->validate([
+            'archivo' => 'required|file|mimes:csv,txt|max:2048',
+        ], [
+            'archivo.required' => 'Debe seleccionar un archivo CSV.',
+            'archivo.mimes'    => 'El archivo debe ser formato CSV.',
+            'archivo.max'      => 'El archivo no debe superar 2 MB.',
+        ]);
+
+        $path = $request->file('archivo')->getRealPath();
+        $handle = fopen($path, 'r');
+
+        // Detectar delimitador y saltar BOM
+        $firstLine = fgets($handle);
+        $firstLine = ltrim($firstLine, "\xEF\xBB\xBF");
+        $delimitador = str_contains($firstLine, ';') ? ';' : ',';
+        rewind($handle);
+
+        // Saltar encabezado
+        fgetcsv($handle, 0, $delimitador);
+
+        $importados = 0;
+        $errores    = [];
+        $fila       = 1;
+
+        while (($row = fgetcsv($handle, 0, $delimitador)) !== false) {
+            $fila++;
+            if (count(array_filter($row)) === 0) continue;
+
+            [$lote, $insumo, $presentacion, $fecha_vencimiento, $laboratorio, $saldo, $estado, $observacion] = array_pad($row, 8, null);
+
+            $lote = strtoupper(trim($lote ?? ''));
+
+            // Validaciones básicas
+            if (empty($lote)) {
+                $errores[] = "Fila {$fila}: el campo 'lote' es obligatorio.";
+                continue;
+            }
+            if (empty($insumo)) {
+                $errores[] = "Fila {$fila}: el campo 'insumo' es obligatorio.";
+                continue;
+            }
+            if (empty($presentacion)) {
+                $errores[] = "Fila {$fila}: el campo 'presentacion' es obligatorio.";
+                continue;
+            }
+            if (!in_array(trim($estado ?? ''), ['Activo', 'Inactivo'])) {
+                $errores[] = "Fila {$fila}: 'estado' debe ser Activo o Inactivo.";
+                continue;
+            }
+            if (Lote::where('lote', $lote)->exists()) {
+                $errores[] = "Fila {$fila}: el lote '{$lote}' ya existe, se omitió.";
+                continue;
+            }
+
+            $fechaParsed = null;
+            if (!empty($fecha_vencimiento)) {
+                $fechaParsed = date('Y-m-d', strtotime(trim($fecha_vencimiento)));
+                if (!$fechaParsed || $fechaParsed === '1970-01-01') {
+                    $errores[] = "Fila {$fila}: fecha_vencimiento inválida (use formato AAAA-MM-DD).";
+                    continue;
+                }
+            }
+
+            Lote::create([
+                'lote'              => $lote,
+                'insumo'            => trim($insumo),
+                'presentacion'      => trim($presentacion),
+                'fecha_vencimiento' => $fechaParsed,
+                'laboratorio'       => trim($laboratorio ?? '') ?: null,
+                'saldo'             => (int) ($saldo ?? 0),
+                'estado'            => trim($estado),
+                'observacion'       => trim($observacion ?? '') ?: null,
+            ]);
+
+            $importados++;
+        }
+
+        fclose($handle);
+
+        $mensaje = "Se importaron {$importados} lote(s) correctamente.";
+        if (!empty($errores)) {
+            return redirect()->route('lotes.index')
+                ->with('success', $mensaje)
+                ->with('errores_csv', $errores);
+        }
+
+        return redirect()->route('lotes.index')->with('success', $mensaje);
+    }
 }
