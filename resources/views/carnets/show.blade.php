@@ -36,7 +36,9 @@
 </div>
 <div class="text-center mt-3">
     <a href="{{ route('carnets.index') }}" class="btn btn-secondary">Volver</a>
-    <a href="{{ route('carnets.edit', $carnet) }}" class="btn btn-warning">Editar</a>
+    <a href="{{ route('carnets.descargar', $carnet) }}" class="btn btn-success">
+        <i class="fas fa-file-word me-1"></i> Descargar .docx
+    </a>
 </div>
 
 @push('scripts')

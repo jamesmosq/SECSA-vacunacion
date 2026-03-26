@@ -46,4 +46,46 @@
         </div>
     </form>
 </div></div>
+
+@if(!isset($carnet) && isset($carnets) && $carnets->total() > 0)
+<div class="card mt-4">
+    <div class="card-header"><strong>Carnets registrados</strong></div>
+    <div class="table-responsive">
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Fecha</th>
+                    <th>Nombres y Apellidos</th>
+                    <th>Tipo ID</th>
+                    <th>Número ID</th>
+                    <th>Expedición</th>
+                    <th>Persona que Expide</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($carnets as $c)
+                <tr>
+                    <td>{{ $c->id }}</td>
+                    <td>{{ $c->fecha->format('d/m/Y') }}</td>
+                    <td>{{ $c->nombres }}</td>
+                    <td>{{ $c->tipo_id }}</td>
+                    <td>{{ $c->numero_id }}</td>
+                    <td>{{ $c->expedicion_id }}</td>
+                    <td>{{ $c->persona_expide }}</td>
+                    <td>
+                        <a href="{{ route('carnets.show', $c) }}" class="btn btn-sm btn-outline-secondary">Ver</a>
+                        <a href="{{ route('carnets.descargar', $c) }}" class="btn btn-sm btn-outline-success">↓ docx</a>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    @if($carnets->hasPages())
+    <div class="card-footer">{{ $carnets->links() }}</div>
+    @endif
+</div>
+@endif
 @endsection

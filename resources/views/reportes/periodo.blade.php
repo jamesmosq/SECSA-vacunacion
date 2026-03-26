@@ -2,35 +2,68 @@
 @section('title', 'Informe por Periodo')
 @section('content')
 <h4 class="mb-3">Informe por Periodo</h4>
-<form method="POST" action="{{ route('reportes.periodo') }}" class="row g-3 mb-4">
-    @csrf
+<form method="GET" action="{{ route('reportes.periodo') }}" class="row g-3 mb-4">
     <div class="col-md-2">
         <label class="form-label">Desde</label>
-        <input type="date" name="desde" class="form-control" required>
+        <input type="date" name="desde" class="form-control" value="{{ request('desde') }}" required>
     </div>
     <div class="col-md-2">
         <label class="form-label">Hasta</label>
-        <input type="date" name="hasta" class="form-control" required>
+        <input type="date" name="hasta" class="form-control" value="{{ request('hasta') }}" required>
     </div>
     <div class="col-auto d-flex align-items-end">
-        <button type="submit" class="btn btn-primary">Consultar</button>
+        <div class="d-flex gap-2 align-items-end">
+        <button type="submit" name="format" value="" class="btn btn-primary">Consultar</button>
+        @include("reportes.partials.botones-export")
+    </div>
     </div>
 </form>
-@if($movimientos->count())
-<table class="table table-sm table-bordered table-hover">
-    <thead class="table-dark"><tr><th>Fecha</th><th>Institución</th><th>Nro Pedido</th><th>Lote</th><th>Ingreso</th><th>Salida</th></tr></thead>
-    <tbody>
-        @foreach($movimientos as $mov)
-        <tr>
-            <td>{{ $mov->fecha_movimiento->format('d/m/Y') }}</td>
-            <td>{{ $mov->institucion }}</td>
-            <td>{{ $mov->nro_pedido }}</td>
-            <td>{{ $mov->lote }}</td>
-            <td class="text-end text-success">{{ $mov->ingreso > 0 ? number_format($mov->ingreso) : '' }}</td>
-            <td class="text-end text-danger">{{ $mov->salida > 0 ? number_format($mov->salida) : '' }}</td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
+
+@if($grupos->count())
+    @php $totalIngreso = 0; $totalSalida = 0; @endphp
+    @foreach($grupos as $clave => $items)
+        @php
+            $mov = $items->first();
+            $totalIngreso += $items->sum('ingreso');
+            $totalSalida  += $items->sum('salida');
+        @endphp
+        <div class="card mb-3">
+            <div class="card-header py-2 bg-light d-flex gap-4">
+                <span><strong>Fecha:</strong> {{ $mov->fecha_movimiento->format('d/m/Y') }}</span>
+                <span><strong>Institución:</strong> {{ $mov->institucion }}</span>
+                <span><strong>Pedido:</strong> {{ $mov->nro_pedido ?: '—' }}</span>
+                @if($mov->observaciones)<span><strong>Obs:</strong> {{ $mov->observaciones }}</span>@endif
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered mb-0">
+                    <thead class="table-dark">
+                        <tr><th>Insumo</th><th>Lote</th><th class="text-end">Ingreso</th><th class="text-end">Salida</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach($items as $m)
+                        <tr>
+                            <td>{{ $m->loteRelacion?->insumo ?? '—' }}</td>
+                            <td>{{ $m->lote }}</td>
+                            <td class="text-end text-success">{{ $m->ingreso > 0 ? number_format($m->ingreso) : '' }}</td>
+                            <td class="text-end text-danger">{{ $m->salida > 0 ? number_format($m->salida) : '' }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="2" class="text-end fw-bold">Subtotal</td>
+                            <td class="text-end fw-bold text-success">{{ number_format($items->sum('ingreso')) }}</td>
+                            <td class="text-end fw-bold text-danger">{{ number_format($items->sum('salida')) }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    @endforeach
+    <div class="alert alert-secondary d-flex gap-4">
+        <strong>Total general:</strong>
+        <span class="text-success">Ingreso: {{ number_format($totalIngreso) }}</span>
+        <span class="text-danger">Salida: {{ number_format($totalSalida) }}</span>
+    </div>
 @endif
 @endsection

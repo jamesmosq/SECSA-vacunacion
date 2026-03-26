@@ -18,7 +18,6 @@
             <td>{{ $c->persona_expide }}</td>
             <td>
                 <a href="{{ route('carnets.show', $c) }}" class="btn btn-sm btn-info">Ver</a>
-                <a href="{{ route('carnets.edit', $c) }}" class="btn btn-sm btn-warning">Editar</a>
             </td>
         </tr>
         @endforeach

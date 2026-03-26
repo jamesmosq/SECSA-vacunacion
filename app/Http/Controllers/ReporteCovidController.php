@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 
 class ReporteCovidController extends Controller
 {
+    use \App\Http\Controllers\Concerns\ExportaReporte;
     public function saldoInventario()
     {
         $lotes = LoteCovid::orderBy('insumo')->orderBy('lote')->get();
@@ -18,41 +19,49 @@ class ReporteCovidController extends Controller
     public function institucionFecha(Request $request)
     {
         $instituciones = InstitucionCovid::activos()->orderBy('nombre_institucion')->pluck('nombre_institucion');
-        $movimientos   = collect();
+        $grupos        = collect();
 
         if ($request->filled(['institucion', 'fecha'])) {
             $request->validate([
                 'institucion' => 'required|string',
                 'fecha'       => 'required|date',
             ]);
-            $movimientos = MovimientoCovid::where('institucion', $request->institucion)
+            $grupos = MovimientoCovid::with('loteRelacion')
+                ->where('institucion', $request->institucion)
                 ->whereDate('fecha_movimiento', $request->fecha)
-                ->orderBy('lote')
-                ->get();
+                ->orderBy('nro_pedido')->orderBy('lote')
+                ->get()
+                ->groupBy(fn($m) => $m->fecha_movimiento->format('Y-m-d') . '|' . $m->nro_pedido . '|' . $m->observaciones);
         }
 
-        return view('covid.reportes.institucion-fecha', compact('instituciones', 'movimientos'));
+        if ($request->input('format') === 'pdf') return $this->exportarPdf('COVID — Informe por Institución y Fecha', $grupos, true);
+        if ($request->input('format') === 'csv') return $this->exportarCsv('COVID — Informe por Institución y Fecha', $grupos);
+        return view('covid.reportes.institucion-fecha', compact('instituciones', 'grupos'));
     }
 
     public function institucionPedido(Request $request)
     {
         $instituciones = InstitucionCovid::activos()->orderBy('nombre_institucion')->pluck('nombre_institucion');
-        $movimientos   = collect();
+        $grupos        = collect();
 
         if ($request->filled('institucion')) {
             $request->validate(['institucion' => 'required|string']);
-            $movimientos = MovimientoCovid::where('institucion', $request->institucion)
-                ->orderBy('nro_pedido')->orderBy('lote')
-                ->get();
+            $grupos = MovimientoCovid::with('loteRelacion')
+                ->where('institucion', $request->institucion)
+                ->orderBy('nro_pedido')->orderBy('fecha_movimiento')->orderBy('lote')
+                ->get()
+                ->groupBy(fn($m) => $m->nro_pedido . '|' . $m->fecha_movimiento->format('Y-m-d') . '|' . $m->observaciones);
         }
 
-        return view('covid.reportes.institucion-pedido', compact('instituciones', 'movimientos'));
+        if ($request->input('format') === 'pdf') return $this->exportarPdf('COVID — Informe por Institución y Pedido', $grupos, true);
+        if ($request->input('format') === 'csv') return $this->exportarCsv('COVID — Informe por Institución y Pedido', $grupos);
+        return view('covid.reportes.institucion-pedido', compact('instituciones', 'grupos'));
     }
 
     public function institucionPeriodo(Request $request)
     {
         $instituciones = InstitucionCovid::activos()->orderBy('nombre_institucion')->pluck('nombre_institucion');
-        $movimientos   = collect();
+        $grupos        = collect();
 
         if ($request->filled(['institucion', 'desde', 'hasta'])) {
             $request->validate([
@@ -60,48 +69,58 @@ class ReporteCovidController extends Controller
                 'desde'       => 'required|date',
                 'hasta'       => 'required|date|after_or_equal:desde',
             ]);
-            $movimientos = MovimientoCovid::where('institucion', $request->institucion)
+            $grupos = MovimientoCovid::with('loteRelacion')
+                ->where('institucion', $request->institucion)
                 ->whereBetween('fecha_movimiento', [$request->desde, $request->hasta])
-                ->orderBy('fecha_movimiento')
-                ->get();
+                ->orderBy('fecha_movimiento')->orderBy('nro_pedido')->orderBy('lote')
+                ->get()
+                ->groupBy(fn($m) => $m->fecha_movimiento->format('Y-m-d') . '|' . $m->nro_pedido . '|' . $m->observaciones);
         }
 
-        return view('covid.reportes.institucion-periodo', compact('instituciones', 'movimientos'));
+        if ($request->input('format') === 'pdf') return $this->exportarPdf('COVID — Informe por Institución y Periodo', $grupos, true);
+        if ($request->input('format') === 'csv') return $this->exportarCsv('COVID — Informe por Institución y Periodo', $grupos);
+        return view('covid.reportes.institucion-periodo', compact('instituciones', 'grupos'));
     }
 
     public function periodo(Request $request)
     {
-        $movimientos = collect();
+        $grupos = collect();
 
         if ($request->filled(['desde', 'hasta'])) {
             $request->validate([
                 'desde' => 'required|date',
                 'hasta' => 'required|date|after_or_equal:desde',
             ]);
-            $movimientos = MovimientoCovid::whereBetween('fecha_movimiento', [$request->desde, $request->hasta])
-                ->orderBy('fecha_movimiento')->orderBy('institucion')
-                ->get();
+            $grupos = MovimientoCovid::with('loteRelacion')
+                ->whereBetween('fecha_movimiento', [$request->desde, $request->hasta])
+                ->orderBy('fecha_movimiento')->orderBy('institucion')->orderBy('nro_pedido')->orderBy('lote')
+                ->get()
+                ->groupBy(fn($m) => $m->fecha_movimiento->format('Y-m-d') . '|' . $m->institucion . '|' . $m->nro_pedido . '|' . $m->observaciones);
         }
 
-        return view('covid.reportes.periodo', compact('movimientos'));
+        if ($request->input('format') === 'pdf') return $this->exportarPdf('COVID — Informe por Periodo', $grupos, true);
+        if ($request->input('format') === 'csv') return $this->exportarCsv('COVID — Informe por Periodo', $grupos);
+        return view('covid.reportes.periodo', compact('grupos'));
     }
 
     public function insumoPeriodo(Request $request)
     {
-        $movimientos = collect();
+        $grupos = collect();
 
         if ($request->filled(['desde', 'hasta'])) {
             $request->validate([
                 'desde' => 'required|date',
                 'hasta' => 'required|date|after_or_equal:desde',
             ]);
-            $movimientos = MovimientoCovid::with('loteRelacion')
+            $grupos = MovimientoCovid::with('loteRelacion')
                 ->whereBetween('fecha_movimiento', [$request->desde, $request->hasta])
                 ->orderBy('lote')
                 ->get()
                 ->groupBy(fn($m) => $m->loteRelacion?->insumo ?? $m->lote);
         }
 
-        return view('covid.reportes.insumo-periodo', compact('movimientos'));
+        if ($request->input('format') === 'pdf') return $this->exportarPdf('COVID — Informe por Insumo y Periodo', $grupos, true);
+        if ($request->input('format') === 'csv') return $this->exportarCsv('COVID — Informe por Insumo y Periodo', $grupos);
+        return view('covid.reportes.insumo-periodo', compact('grupos'));
     }
 }

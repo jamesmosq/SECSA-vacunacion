@@ -47,6 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('presentaciones', PresentacionController::class);
     Route::resource('pedidos', PedidoController::class);
     Route::resource('carnets', CarnetController::class);
+    Route::get('carnets/{carnet}/descargar', [CarnetController::class, 'descargar'])->name('carnets.descargar');
 
     // Reportes PAI
     Route::get('/reportes/saldo-inventario', [ReporteController::class, 'saldoInventario'])->name('reportes.saldo-inventario');

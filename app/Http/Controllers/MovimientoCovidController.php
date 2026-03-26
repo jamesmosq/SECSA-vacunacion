@@ -13,41 +13,56 @@ class MovimientoCovidController extends Controller
 {
     public function index()
     {
-        $instituciones = InstitucionCovid::activos()->orderBy('nombre_institucion')->pluck('nombre_institucion');
-        return view('covid.movimientos.index', compact('instituciones'));
+        return redirect()->route('movimientos-covid.create');
     }
 
     public function create()
     {
-        $instituciones = InstitucionCovid::activos()->orderBy('nombre_institucion')->pluck('nombre_institucion');
-        $pedidos       = PedidoCovid::orderBy('nro_pedido')->get(['id', 'nro_pedido', 'radicado_paiweb']);
-        $lotes         = LoteCovid::activos()->orderBy('insumo')->get(['lote', 'insumo', 'saldo']);
-        return view('covid.movimientos.form', compact('instituciones', 'pedidos', 'lotes'));
+        $instituciones  = InstitucionCovid::activos()->orderBy('nombre_institucion')->pluck('nombre_institucion');
+        $pedidos        = PedidoCovid::orderBy('nro_pedido')->get(['id', 'nro_pedido', 'radicado_paiweb']);
+        $lotesPorInsumo = LoteCovid::activos()->orderBy('insumo')->orderBy('lote')
+                            ->get(['lote', 'insumo', 'saldo'])
+                            ->groupBy('insumo');
+        return view('covid.movimientos.form', compact('instituciones', 'pedidos', 'lotesPorInsumo'));
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $request->validate([
             'institucion'         => 'required|string|max:200',
             'fecha_movimiento'    => 'required|date',
             'nro_pedido'          => 'required|integer',
-            'lote'                => 'required|string|max:30',
-            'ingreso'             => 'required|integer|min:0',
-            'salida'              => 'required|integer|min:0',
             'observaciones'       => 'nullable|string',
             'tipo_identificacion' => 'nullable|string|max:30',
             'identificacion'      => 'nullable|string|max:30',
             'nombres_apellidos'   => 'nullable|string|max:200',
+            'items'               => 'required|array|min:1',
+            'items.*.lote'        => 'required|string|max:30|exists:lotes_covid,lote',
+            'items.*.ingreso'     => 'required|integer|min:0',
+            'items.*.salida'      => 'required|integer|min:0',
         ]);
 
-        DB::transaction(function () use ($data) {
-            MovimientoCovid::create($data);
-            $lote = LoteCovid::findOrFail($data['lote']);
-            $lote->increment('saldo', $data['ingreso']);
-            $lote->decrement('saldo', $data['salida']);
+        $cabecera = $request->only([
+            'institucion', 'fecha_movimiento', 'nro_pedido', 'observaciones',
+            'tipo_identificacion', 'identificacion', 'nombres_apellidos',
+        ]);
+
+        DB::transaction(function () use ($cabecera, $request) {
+            foreach ($request->items as $item) {
+                MovimientoCovid::create(array_merge($cabecera, [
+                    'lote'    => $item['lote'],
+                    'ingreso' => (int) $item['ingreso'],
+                    'salida'  => (int) $item['salida'],
+                ]));
+                $lote = LoteCovid::findOrFail($item['lote']);
+                $lote->increment('saldo', (int) $item['ingreso']);
+                $lote->decrement('saldo', (int) $item['salida']);
+            }
         });
 
-        return redirect()->route('movimientos-covid.index')->with('success', 'Movimiento COVID registrado.');
+        $total = count($request->items);
+        return redirect()->route('movimientos-covid.index')
+            ->with('success', "Se registraron {$total} movimiento(s) COVID correctamente.");
     }
 
     public function show(string $id)
@@ -58,11 +73,13 @@ class MovimientoCovidController extends Controller
 
     public function edit(string $id)
     {
-        $movimiento    = MovimientoCovid::findOrFail($id);
-        $instituciones = InstitucionCovid::activos()->orderBy('nombre_institucion')->pluck('nombre_institucion');
-        $pedidos       = PedidoCovid::orderBy('nro_pedido')->get(['id', 'nro_pedido', 'radicado_paiweb']);
-        $lotes         = LoteCovid::activos()->orderBy('insumo')->get(['lote', 'insumo', 'saldo']);
-        return view('covid.movimientos.form', compact('movimiento', 'instituciones', 'pedidos', 'lotes'));
+        $movimiento     = MovimientoCovid::findOrFail($id);
+        $instituciones  = InstitucionCovid::activos()->orderBy('nombre_institucion')->pluck('nombre_institucion');
+        $pedidos        = PedidoCovid::orderBy('nro_pedido')->get(['id', 'nro_pedido', 'radicado_paiweb']);
+        $lotesPorInsumo = LoteCovid::activos()->orderBy('insumo')->orderBy('lote')
+                            ->get(['lote', 'insumo', 'saldo'])
+                            ->groupBy('insumo');
+        return view('covid.movimientos.form', compact('movimiento', 'instituciones', 'pedidos', 'lotesPorInsumo'));
     }
 
     public function update(Request $request, string $id)

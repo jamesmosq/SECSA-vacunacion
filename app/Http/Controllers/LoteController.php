@@ -132,6 +132,14 @@ class LoteController extends Controller
             $fila++;
             if (count(array_filter($row)) === 0) continue;
 
+            // Convertir a UTF-8 si el archivo viene en Latin-1/ISO-8859-1
+            $row = array_map(function ($val) {
+                if ($val === null) return null;
+                return mb_detect_encoding($val, ['UTF-8'], true) === false
+                    ? mb_convert_encoding($val, 'UTF-8', 'ISO-8859-1')
+                    : $val;
+            }, $row);
+
             [$lote, $insumo, $presentacion, $fecha_vencimiento, $laboratorio, $saldo, $estado, $observacion] = array_pad($row, 8, null);
 
             $lote = strtoupper(trim($lote ?? ''));
