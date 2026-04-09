@@ -11,6 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Confiar en el proxy de Railway (termina SSL antes del contenedor)
+        $middleware->trustProxies(at: '*');
+
         // Aplica headers de seguridad a todas las respuestas web
         $middleware->web(append: [
             \App\Http\Middleware\SecurityHeaders::class,
